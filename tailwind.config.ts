@@ -9,11 +9,11 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // AIOS Dark theme — warm charcoal palette
-        'mc-bg': '#373737',
-        'mc-bg-secondary': '#424242',
-        'mc-bg-tertiary': '#4d4d4d',
-        'mc-border': '#5a5a5a',
+        // AIOS Dark theme — near-black palette
+        'mc-bg': '#111111',
+        'mc-bg-secondary': '#222222',
+        'mc-bg-tertiary': '#2a2a2a',
+        'mc-border': '#3a3a3a',
         'mc-text': '#e8e8e8',
         'mc-text-secondary': '#999999',
         'mc-accent': '#0033FF',
