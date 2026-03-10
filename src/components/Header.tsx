@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Zap, Settings, ChevronLeft, LayoutGrid } from 'lucide-react';
-import { useMissionControl } from '@/lib/store';
+import { Zap, Settings, ChevronLeft, LayoutGrid, ShoppingBag, Workflow, BarChart3 } from 'lucide-react';
+import { useAIOS } from '@/lib/store';
 import { format } from 'date-fns';
 import type { Workspace } from '@/lib/types';
 
@@ -15,7 +15,7 @@ interface HeaderProps {
 
 export function Header({ workspace, isPortrait = true }: HeaderProps) {
   const router = useRouter();
-  const { agents, tasks, isOnline } = useMissionControl();
+  const { agents, tasks, isOnline } = useAIOS();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [activeSubAgents, setActiveSubAgents] = useState(0);
 
@@ -102,7 +102,7 @@ export function Header({ workspace, isPortrait = true }: HeaderProps) {
           <div className="flex items-center gap-2 md:gap-4 min-w-0">
             <div className="hidden sm:flex items-center gap-2">
               <Zap className="w-5 h-5 text-mc-accent-cyan" />
-              <span className="font-semibold text-mc-text uppercase tracking-wider text-sm">Mission Control</span>
+              <span className="font-semibold text-mc-text uppercase tracking-wider text-sm">AutomateAI Suite</span>
             </div>
 
             {workspace ? (
@@ -123,6 +123,21 @@ export function Header({ workspace, isPortrait = true }: HeaderProps) {
                 <span className="text-sm">All Workspaces</span>
               </Link>
             )}
+
+            <nav className="hidden md:flex items-center gap-1 ml-2">
+              <Link href="/marketplace" className="flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs text-mc-text-secondary hover:text-mc-text hover:bg-mc-bg-tertiary transition-colors">
+                <ShoppingBag className="w-3.5 h-3.5" />
+                <span>Marketplace</span>
+              </Link>
+              <Link href="/automation" className="flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs text-mc-text-secondary hover:text-mc-text hover:bg-mc-bg-tertiary transition-colors">
+                <Workflow className="w-3.5 h-3.5" />
+                <span>Automation</span>
+              </Link>
+              <Link href="/analytics" className="flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs text-mc-text-secondary hover:text-mc-text hover:bg-mc-bg-tertiary transition-colors">
+                <BarChart3 className="w-3.5 h-3.5" />
+                <span>Analytics</span>
+              </Link>
+            </nav>
           </div>
 
           {workspace && (

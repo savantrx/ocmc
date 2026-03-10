@@ -39,7 +39,7 @@ export interface RegisterSubAgentParams {
 
 /**
  * Log an activity to a task's activity feed
- * This makes activities visible in the Mission Control UI
+ * This makes activities visible in the AIOS UI
  */
 export async function logActivity(params: LogActivityParams): Promise<void> {
   try {
@@ -94,7 +94,7 @@ export async function logDeliverable(params: LogDeliverableParams): Promise<void
 }
 
 /**
- * Register a sub-agent session in Mission Control
+ * Register a sub-agent session in AIOS
  * This makes the session visible in the Sessions tab and updates agent counters
  */
 export async function registerSubAgentSession(params: RegisterSubAgentParams): Promise<void> {
@@ -241,8 +241,8 @@ export async function onSubAgentCompleted(params: {
  * await orchestrator.onSubAgentSpawned({
  *   taskId: 'task-123',
  *   sessionId: 'agent:main:subagent:abc123',
- *   agentName: 'mission-control-integration-fixes',
- *   description: 'Fix Mission Control real-time updates',
+ *   agentName: 'aios-integration-fixes',
+ *   description: 'Fix AIOS real-time updates',
  * });
  * 
  * // During work:
@@ -256,7 +256,7 @@ export async function onSubAgentCompleted(params: {
  * await orchestrator.onSubAgentCompleted({
  *   taskId: 'task-123',
  *   sessionId: 'agent:main:subagent:abc123',
- *   agentName: 'mission-control-integration-fixes',
+ *   agentName: 'aios-integration-fixes',
  *   summary: 'All integration issues fixed and tested',
  *   deliverables: [
  *     { type: 'file', title: 'Updated dispatch route', path: 'src/app/api/tasks/[id]/dispatch/route.ts' },

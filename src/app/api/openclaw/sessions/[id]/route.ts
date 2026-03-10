@@ -73,8 +73,8 @@ export async function POST(request: Request, { params }: RouteParams) {
       }
     }
 
-    // Prefix message with [Mission Control] so the agent knows the source
-    const prefixedContent = `[Mission Control] ${content}`;
+    // Prefix message with [AIOS] so the agent knows the source
+    const prefixedContent = `[AIOS] ${content}`;
     await client.sendMessage(id, prefixedContent);
 
     return NextResponse.json({ success: true });

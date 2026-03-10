@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { X, Save, Trash2 } from 'lucide-react';
-import { useMissionControl } from '@/lib/store';
-import type { Agent, AgentStatus } from '@/lib/types';
+import { useAIOS } from '@/lib/store';
+import type { Agent, AgentStatus, AgentType } from '@/lib/types';
 
 interface AgentModalProps {
   agent?: Agent;
@@ -15,7 +15,7 @@ interface AgentModalProps {
 const EMOJI_OPTIONS = ['🤖', '🦞', '💻', '🔍', '✍️', '🎨', '📊', '🧠', '⚡', '🚀', '🎯', '🔧'];
 
 export function AgentModal({ agent, onClose, workspaceId, onAgentCreated }: AgentModalProps) {
-  const { addAgent, updateAgent, agents } = useMissionControl();
+  const { addAgent, updateAgent, agents } = useAIOS();
   const [activeTab, setActiveTab] = useState<'info' | 'soul' | 'user' | 'agents'>('info');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [availableModels, setAvailableModels] = useState<string[]>([]);
@@ -33,6 +33,9 @@ export function AgentModal({ agent, onClose, workspaceId, onAgentCreated }: Agen
     user_md: agent?.user_md || '',
     agents_md: agent?.agents_md || '',
     model: agent?.model || '',
+    agent_type: (agent?.agent_type || 'openclaw') as AgentType,
+    endpoint_url: agent?.endpoint_url || '',
+    api_key: '',  // Never pre-fill — always blank for security
   });
 
   // Load available models from OpenClaw config
@@ -102,7 +105,7 @@ export function AgentModal({ agent, onClose, workspaceId, onAgentCreated }: Agen
       const res = await fetch(`/api/agents/${agent.id}`, { method: 'DELETE' });
       if (res.ok) {
         // Remove from store
-        useMissionControl.setState((state) => ({
+        useAIOS.setState((state) => ({
           agents: state.agents.filter((a) => a.id !== agent.id),
           selectedAgent: state.selectedAgent?.id === agent.id ? null : state.selectedAgent,
         }));
@@ -272,6 +275,55 @@ export function AgentModal({ agent, onClose, workspaceId, onAgentCreated }: Agen
                   AI model used by this agent. Leave empty to use OpenClaw default.
                 </p>
               </div>
+
+              {/* Agent Type */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Agent Type</label>
+                <select
+                  value={form.agent_type}
+                  onChange={(e) => setForm({ ...form, agent_type: e.target.value as AgentType })}
+                  className="w-full min-h-11 bg-mc-bg border border-mc-border rounded px-3 py-2 text-sm focus:outline-none focus:border-mc-accent"
+                >
+                  <option value="openclaw">OpenClaw (Gateway)</option>
+                  <option value="agent_zero">Agent Zero (A2A)</option>
+                </select>
+                <p className="text-xs text-mc-text-secondary mt-1">
+                  OpenClaw agents use the Gateway. Agent Zero nodes connect via the A2A protocol.
+                </p>
+              </div>
+
+              {/* Agent Zero fields */}
+              {form.agent_type === 'agent_zero' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Endpoint URL</label>
+                    <input
+                      type="url"
+                      value={form.endpoint_url}
+                      onChange={(e) => setForm({ ...form, endpoint_url: e.target.value })}
+                      required
+                      className="w-full min-h-11 bg-mc-bg border border-mc-border rounded px-3 py-2 text-sm focus:outline-none focus:border-mc-accent"
+                      placeholder="https://your-agent-zero:50080"
+                    />
+                    <p className="text-xs text-mc-text-secondary mt-1">
+                      Agent Zero A2A endpoint (e.g. https://host:50080)
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      API Key
+                      {agent && <span className="ml-2 text-xs text-mc-text-secondary">(leave blank to keep existing)</span>}
+                    </label>
+                    <input
+                      type="password"
+                      value={form.api_key}
+                      onChange={(e) => setForm({ ...form, api_key: e.target.value })}
+                      className="w-full min-h-11 bg-mc-bg border border-mc-border rounded px-3 py-2 text-sm focus:outline-none focus:border-mc-accent"
+                      placeholder={agent ? '••••••••' : 'Bearer token for A2A endpoint'}
+                    />
+                  </div>
+                </>
+              )}
             </div>
           )}
 

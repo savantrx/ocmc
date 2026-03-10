@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { X, Save, Trash2, Activity, Package, Bot, ClipboardList, Plus, Users } from 'lucide-react';
-import { useMissionControl } from '@/lib/store';
+import { useAIOS } from '@/lib/store';
 import { triggerAutoDispatch, shouldTriggerAutoDispatch } from '@/lib/auto-dispatch';
 import { ActivityLog } from './ActivityLog';
 import { DeliverablesList } from './DeliverablesList';
@@ -21,7 +21,7 @@ interface TaskModalProps {
 }
 
 export function TaskModal({ task, onClose, workspaceId }: TaskModalProps) {
-  const { agents, addTask, updateTask, addEvent } = useMissionControl();
+  const { agents, addTask, updateTask, addEvent } = useAIOS();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAgentModal, setShowAgentModal] = useState(false);
   const [usePlanningMode, setUsePlanningMode] = useState(false);
@@ -168,7 +168,7 @@ export function TaskModal({ task, onClose, workspaceId }: TaskModalProps) {
     try {
       const res = await fetch(`/api/tasks/${task.id}`, { method: 'DELETE' });
       if (res.ok) {
-        useMissionControl.setState((state) => ({
+        useAIOS.setState((state) => ({
           tasks: state.tasks.filter((t) => t.id !== task.id),
         }));
         onClose();

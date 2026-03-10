@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { queryAll, queryOne, run } from '@/lib/db';
+import { encryptApiKey } from '@/lib/crypto';
 import type { Agent, CreateAgentRequest } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -38,9 +39,20 @@ export async function POST(request: NextRequest) {
     const id = uuidv4();
     const now = new Date().toISOString();
 
+    // Encrypt API key if provided (for Agent Zero nodes)
+    let apiKeyEncrypted: string | null = null;
+    if (body.api_key) {
+      try {
+        apiKeyEncrypted = encryptApiKey(body.api_key);
+      } catch (err) {
+        console.error('Failed to encrypt API key:', err);
+        return NextResponse.json({ error: 'Failed to encrypt API key' }, { status: 500 });
+      }
+    }
+
     run(
-      `INSERT INTO agents (id, name, role, description, avatar_emoji, is_master, workspace_id, soul_md, user_md, agents_md, model, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO agents (id, name, role, description, avatar_emoji, is_master, workspace_id, soul_md, user_md, agents_md, model, agent_type, endpoint_url, api_key_encrypted, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         body.name,
@@ -53,6 +65,9 @@ export async function POST(request: NextRequest) {
         body.user_md || null,
         body.agents_md || null,
         body.model || null,
+        body.agent_type || 'openclaw',
+        body.endpoint_url || null,
+        apiKeyEncrypted,
         now,
         now,
       ]

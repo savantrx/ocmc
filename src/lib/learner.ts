@@ -86,12 +86,12 @@ Focus on:
       // Create session for learner if needed
       const { v4: uuidv4 } = await import('uuid');
       const sessionId = uuidv4();
-      const openclawSessionId = `mission-control-${learnerRole.agent_name.toLowerCase().replace(/\s+/g, '-')}`;
+      const openclawSessionId = `aios-${learnerRole.agent_name.toLowerCase().replace(/\s+/g, '-')}`;
 
       run(
         `INSERT INTO openclaw_sessions (id, agent_id, openclaw_session_id, channel, status, created_at, updated_at)
          VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
-        [sessionId, learnerRole.agent_id, openclawSessionId, 'mission-control', 'active']
+        [sessionId, learnerRole.agent_id, openclawSessionId, 'aios', 'active']
       );
 
       session = queryOne<OpenClawSession>('SELECT * FROM openclaw_sessions WHERE id = ?', [sessionId]);

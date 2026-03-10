@@ -47,7 +47,7 @@ export function WorkspaceDashboard() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <span className="text-2xl">🦞</span>
-              <h1 className="text-xl font-bold">Mission Control</h1>
+              <h1 className="text-xl font-bold">AutomateAI Suite</h1>
             </div>
             <div className="flex items-center gap-2">
               <Link
@@ -74,7 +74,7 @@ export function WorkspaceDashboard() {
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-2">All Workspaces</h2>
           <p className="text-mc-text-secondary">
-            Select a workspace to view its mission queue and agents
+            Select a workspace to view its task queue and agents
           </p>
         </div>
 

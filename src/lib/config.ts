@@ -1,35 +1,38 @@
 /**
  * Configuration Management
- * 
- * Handles user-configurable settings for Mission Control.
+ *
+ * Handles user-configurable settings for AutomateAI Suite (AIOS).
  * Settings are stored in localStorage for client-side access.
- * 
+ *
  * NEVER commit hardcoded IPs, paths, or sensitive data!
  */
 
-export interface MissionControlConfig {
+export interface AIOSConfig {
   // Workspace settings
   workspaceBasePath: string; // e.g., ~/Documents/Shared
   projectsPath: string; // e.g., ${workspaceBasePath}/projects
-  
-  // Mission Control API URL (for orchestration)
-  missionControlUrl: string; // Auto-detected or manually set
-  
+
+  // AIOS API URL (for orchestration)
+  aiosUrl: string; // Auto-detected or manually set
+
   // OpenClaw Gateway settings (these come from .env on server)
   // Client-side only needs to know if it's configured
-  
+
   // Project defaults
-  defaultProjectName: string; // 'mission-control' or custom
+  defaultProjectName: string; // 'aios' or custom
 }
 
-const DEFAULT_CONFIG: MissionControlConfig = {
+// Backward compatibility alias
+export type MissionControlConfig = AIOSConfig;
+
+const DEFAULT_CONFIG: AIOSConfig = {
   workspaceBasePath: '~/Documents/Shared',
   projectsPath: '~/Documents/Shared/projects',
-  missionControlUrl: typeof window !== 'undefined' ? window.location.origin : 'http://localhost:4000',
-  defaultProjectName: 'mission-control',
+  aiosUrl: typeof window !== 'undefined' ? window.location.origin : 'http://localhost:4000',
+  defaultProjectName: 'aios',
 };
 
-const CONFIG_KEY = 'mission-control-config';
+const CONFIG_KEY = 'aios-config';
 
 /**
  * Get current configuration
@@ -72,11 +75,11 @@ export function updateConfig(updates: Partial<MissionControlConfig>): void {
     }
   }
 
-  if (updates.missionControlUrl !== undefined) {
+  if (updates.aiosUrl !== undefined) {
     try {
-      new URL(updates.missionControlUrl);
+      new URL(updates.aiosUrl);
     } catch {
-      throw new Error('Invalid Mission Control URL');
+      throw new Error('Invalid AIOS URL');
     }
   }
 
@@ -113,18 +116,21 @@ export function expandPath(path: string): string {
 }
 
 /**
- * Get Mission Control URL for API calls
+ * Get AIOS URL for API calls
  * Used by orchestration module and other server-side modules
  */
-export function getMissionControlUrl(): string {
+export function getAIOSUrl(): string {
   // Server-side: use env var or auto-detect
   if (typeof window === 'undefined') {
-    return process.env.MISSION_CONTROL_URL || 'http://localhost:4000';
+    return process.env.AIOS_URL || process.env.MISSION_CONTROL_URL || 'http://localhost:4000';
   }
 
   // Client-side: use config
-  return getConfig().missionControlUrl;
+  return getConfig().aiosUrl;
 }
+
+// Backward compatibility alias
+export const getMissionControlUrl = getAIOSUrl;
 
 /**
  * Get workspace base path

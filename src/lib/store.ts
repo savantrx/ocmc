@@ -4,7 +4,7 @@ import { create } from 'zustand';
 import { debug } from './debug';
 import type { Agent, Task, Conversation, Message, Event, TaskStatus, OpenClawSession } from './types';
 
-interface MissionControlState {
+interface AIOSState {
   // Data
   agents: Agent[];
   tasks: Task[];
@@ -55,7 +55,7 @@ interface MissionControlState {
   addOpenclawMessage: (message: Message) => void;
 }
 
-export const useMissionControl = create<MissionControlState>((set) => ({
+export const useAIOS = create<AIOSState>((set) => ({
   // Initial state
   agents: [],
   tasks: [],
@@ -160,3 +160,6 @@ export const useMissionControl = create<MissionControlState>((set) => ({
   addOpenclawMessage: (message) =>
     set((state) => ({ openclawMessages: [...state.openclawMessages, message] })),
 }));
+
+// Backward compatibility alias
+export const useMissionControl = useAIOS;

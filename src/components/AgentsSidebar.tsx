@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Plus, ChevronRight, ChevronLeft, Zap, ZapOff, Loader2, Search } from 'lucide-react';
-import { useMissionControl } from '@/lib/store';
+import { useAIOS } from '@/lib/store';
 import type { Agent, AgentStatus, OpenClawSession } from '@/lib/types';
 import { AgentModal } from './AgentModal';
 import { DiscoverAgentsModal } from './DiscoverAgentsModal';
@@ -16,7 +16,7 @@ interface AgentsSidebarProps {
 }
 
 export function AgentsSidebar({ workspaceId, mobileMode = false, isPortrait = true }: AgentsSidebarProps) {
-  const { agents, selectedAgent, setSelectedAgent, agentOpenClawSessions, setAgentOpenClawSession } = useMissionControl();
+  const { agents, selectedAgent, setSelectedAgent, agentOpenClawSessions, setAgentOpenClawSession } = useAIOS();
   const [filter, setFilter] = useState<FilterTab>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
@@ -219,7 +219,12 @@ export function AgentsSidebar({ workspaceId, mobileMode = false, isPortrait = tr
                   </div>
                   <div className="text-xs text-mc-text-secondary truncate flex items-center gap-1">
                     {agent.role}
-                    {agent.source === 'gateway' && (
+                    {agent.agent_type === 'agent_zero' && (
+                      <span className="text-[10px] px-1 py-0 bg-purple-500/20 text-purple-400 rounded" title="Agent Zero (A2A)">
+                        A0
+                      </span>
+                    )}
+                    {agent.agent_type !== 'agent_zero' && agent.source === 'gateway' && (
                       <span className="text-[10px] px-1 py-0 bg-blue-500/20 text-blue-400 rounded" title="Imported from Gateway">
                         GW
                       </span>
