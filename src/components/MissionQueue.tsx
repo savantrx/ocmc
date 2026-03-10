@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, ChevronRight, GripVertical, ArrowRightLeft } from 'lucide-react';
-import { useMissionControl } from '@/lib/store';
+import { useAIOS } from '@/lib/store';
 import { triggerAutoDispatch, shouldTriggerAutoDispatch } from '@/lib/auto-dispatch';
 import type { Task, TaskStatus } from '@/lib/types';
 import { TaskModal } from './TaskModal';
@@ -26,7 +26,7 @@ const COLUMNS: { id: TaskStatus; label: string; color: string }[] = [
 ];
 
 export function MissionQueue({ workspaceId, mobileMode = false, isPortrait = true }: MissionQueueProps) {
-  const { tasks, updateTaskStatus, addEvent } = useMissionControl();
+  const { tasks, updateTaskStatus, addEvent } = useAIOS();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);

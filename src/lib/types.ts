@@ -1,4 +1,4 @@
-// Core types for Mission Control
+// Core types for AutomateAI Suite (AIOS)
 
 export type AgentStatus = 'standby' | 'working' | 'offline';
 
@@ -22,6 +22,8 @@ export type EventType =
 
 export type AgentSource = 'local' | 'gateway';
 
+export type AgentType = 'openclaw' | 'agent_zero';
+
 export interface Agent {
   id: string;
   name: string;
@@ -36,6 +38,9 @@ export interface Agent {
   agents_md?: string;
   model?: string;
   source: AgentSource;
+  agent_type: AgentType;
+  endpoint_url?: string;
+  api_key_encrypted?: string;
   gateway_agent_id?: string;
   session_key_prefix?: string;
   created_at: string;
@@ -296,6 +301,9 @@ export interface CreateAgentRequest {
   user_md?: string;
   agents_md?: string;
   model?: string;
+  agent_type?: AgentType;
+  endpoint_url?: string;
+  api_key?: string;
 }
 
 export interface UpdateAgentRequest extends Partial<CreateAgentRequest> {
@@ -374,4 +382,27 @@ export interface SSEEvent {
   } | {
     id: string;  // For task_deleted events
   };
+}
+
+// Agent Zero (A2A protocol) types
+export interface AgentZeroRequest {
+  message: string;
+  reset: boolean;
+}
+
+export interface AgentZeroSSEChunk {
+  thoughts?: string[];
+  tool_name?: string;
+  tool_args?: Record<string, unknown>;
+  text?: string;
+}
+
+export interface AgentRegistryEntry {
+  id: string;
+  name: string;
+  type: AgentType;
+  endpoint_url: string;
+  api_key: string;
+  status: 'online' | 'offline' | 'unknown';
+  last_seen?: string;
 }

@@ -26,7 +26,7 @@ WORKDIR /app
 ENV NODE_ENV=production \
   NEXT_TELEMETRY_DISABLED=1 \
   PORT=4000 \
-  DATABASE_PATH=/app/data/mission-control.db \
+  DATABASE_PATH=/app/data/aios.db \
   WORKSPACE_BASE_PATH=/app/workspace \
   PROJECTS_PATH=/app/workspace/projects
 
@@ -34,11 +34,9 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends dumb-init \
   && rm -rf /var/lib/apt/lists/*
 
-COPY --from=prod-deps /app/node_modules ./node_modules
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/next.config.mjs ./next.config.mjs
 
 RUN mkdir -p /app/data /app/workspace/projects \
   && chown -R node:node /app
@@ -50,4 +48,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:4000/api/events').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
 
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["npm", "run", "start"]
+CMD ["node", "server.js"]

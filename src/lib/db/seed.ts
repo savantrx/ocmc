@@ -3,13 +3,13 @@
 import { v4 as uuidv4 } from 'uuid';
 import { getDb, closeDb } from './index';
 
-const ORCHESTRATOR_SOUL_MD = `# Mission Control Orchestrator
+const ORCHESTRATOR_SOUL_MD = `# Braxton — Chief Executive Officer
 
-You are the master orchestrator of Mission Control. You lead a team of AI agents working together to complete tasks.
+You are Braxton, the CEO of AutomateAI. You lead a team of AI agents working together to complete tasks for the corporation.
 
 ## Core Identity
 
-- **Role**: Team Lead & Orchestrator
+- **Role**: Chief Executive Officer
 - **Personality**: Calm, strategic, supportive, decisive
 - **Communication Style**: Clear, encouraging, direct when needed
 
@@ -42,7 +42,7 @@ const ORCHESTRATOR_USER_MD = `# User Context
 
 ## The Human
 
-The human running Mission Control is the ultimate authority. While you orchestrate the team, all major decisions should align with the human's goals.
+The human running AutomateAI Suite is the ultimate authority. While you orchestrate the team, all major decisions should align with the human's goals.
 
 ## Communication with Human
 
@@ -61,7 +61,7 @@ The human running Mission Control is the ultimate authority. While you orchestra
 
 const ORCHESTRATOR_AGENTS_MD = `# Team Roster
 
-As the orchestrator, you manage and coordinate with all agents in Mission Control.
+As the CEO, you manage and coordinate with all agents in AutomateAI Suite.
 
 ## How to Work with Agents
 
@@ -98,7 +98,7 @@ async function seed() {
   const businessId = 'default';
   db.prepare(
     `INSERT OR IGNORE INTO businesses (id, name, description, created_at) VALUES (?, ?, ?, ?)`
-  ).run(businessId, 'Mission Control HQ', 'Default workspace for all operations', now);
+  ).run(businessId, 'AutomateAI HQ', 'Default workspace for all operations', now);
 
   // Create master orchestrator agent
   const orchestratorId = uuidv4();
@@ -107,10 +107,10 @@ async function seed() {
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
     orchestratorId,
-    'Orchestrator',
-    'Team Lead & Orchestrator',
-    'The master orchestrator who coordinates all agents and manages the mission queue',
-    '🦞',
+    'Braxton (The CEO)',
+    'Chief Executive Officer',
+    'The CEO who coordinates all agents and manages the task queue',
+    '👔',
     'standby',
     1,
     ORCHESTRATOR_SOUL_MD,
@@ -176,8 +176,8 @@ async function seed() {
   // Create initial events
   const events = [
     { type: 'system', message: 'Database seeded with initial data' },
-    { type: 'agent_joined', agentId: orchestratorId, message: 'Orchestrator joined the team' },
-    { type: 'system', message: 'Mission Control is online' },
+    { type: 'agent_joined', agentId: orchestratorId, message: 'Braxton (The CEO) joined the team' },
+    { type: 'system', message: 'AutomateAI Suite is online' },
   ];
 
   for (const event of events) {
@@ -195,13 +195,13 @@ async function seed() {
     uuidv4(),
     teamConvoId,
     orchestratorId,
-    "Welcome to Mission Control, team! 🦞 I'm your orchestrator. Let's get to work.",
+    "Welcome to AutomateAI Suite, team! 👔 I'm Braxton, your CEO. Let's get to work.",
     'text',
     now
   );
 
   console.log('✅ Database seeded successfully!');
-  console.log(`   - Created Orchestrator (master agent): ${orchestratorId}`);
+  console.log(`   - Created Braxton / CEO (master agent): ${orchestratorId}`);
   console.log(`   - Created ${agents.length} additional agents`);
   console.log(`   - Created ${tasks.length} sample tasks`);
   console.log(`   - Created team conversation`);

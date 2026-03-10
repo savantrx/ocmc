@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
   experimental: {
     serverComponentsExternalPackages: ['better-sqlite3'],
   },
@@ -10,7 +11,17 @@ const nextConfig = {
     return config;
   },
   async headers() {
+    const aiosDomain = process.env.AIOS_DOMAIN || 'aios.automateai.ceo';
+    const corsOrigin = process.env.AIOS_CORS_ORIGIN || `https://${aiosDomain}`;
     return [
+      {
+        source: '/api/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Origin', value: corsOrigin },
+          { key: 'Access-Control-Allow-Methods', value: 'GET, POST, PATCH, DELETE, OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
+        ],
+      },
       {
         source: '/:path*',
         headers: [

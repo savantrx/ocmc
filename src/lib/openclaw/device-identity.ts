@@ -12,7 +12,7 @@ interface DeviceIdentity {
   privateKeyPem: string;
 }
 
-const IDENTITY_DIR = path.join(os.homedir(), '.mission-control', 'identity');
+const IDENTITY_DIR = path.join(os.homedir(), '.aios', 'identity');
 const IDENTITY_FILE = path.join(IDENTITY_DIR, 'device.json');
 const ED25519_SPKI_PREFIX = Buffer.from('302a300506032b6570032100', 'hex');
 

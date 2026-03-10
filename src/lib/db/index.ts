@@ -4,7 +4,7 @@ import fs from 'fs';
 import { schema } from './schema';
 import { runMigrations } from './migrations';
 
-const DB_PATH = process.env.DATABASE_PATH || path.join(process.cwd(), 'mission-control.db');
+const DB_PATH = process.env.DATABASE_PATH || path.join(process.cwd(), 'aios.db');
 
 let db: Database.Database | null = null;
 

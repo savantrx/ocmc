@@ -1,18 +1,19 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { JetBrains_Mono } from 'next/font/google';
+import { Instrument_Serif } from 'next/font/google';
 import DemoBanner from '@/components/DemoBanner';
 
-const jetbrainsMono = JetBrains_Mono({
+const instrumentSerif = Instrument_Serif({
   subsets: ['latin'],
-  variable: '--font-jetbrains-mono',
-  weight: ['400', '500', '600', '700'],
+  variable: '--font-instrument-serif',
+  weight: '400',
+  style: ['normal', 'italic'],
   display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: 'Mission Control',
-  description: 'AI Agent Orchestration Dashboard',
+  title: 'AutomateAI Suite',
+  description: 'AIOS - Autonomous AI Agent Governance Dashboard',
   icons: {
     icon: '/favicon.svg',
   },
@@ -24,8 +25,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={jetbrainsMono.variable}>
-      <body className={`${jetbrainsMono.className} bg-mc-bg text-mc-text min-h-screen`}>
+    <html lang="en" className={instrumentSerif.variable}>
+      <body className="bg-mc-bg text-mc-text min-h-screen">
         <DemoBanner />
         {children}
       </body>

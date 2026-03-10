@@ -616,10 +616,23 @@ const migrations: Migration[] = [
       console.log('[Migration 013] Strict template is now default with reviewer role');
 
       // 4. Bootstrap 4 core agents for the default workspace
-      const missionControlUrl = process.env.MISSION_CONTROL_URL || 'http://localhost:4000';
-      bootstrapCoreAgentsRaw(db, 'default', missionControlUrl);
+      const aiosUrl = process.env.AIOS_URL || process.env.MISSION_CONTROL_URL || 'http://localhost:4000';
+      bootstrapCoreAgentsRaw(db, 'default', aiosUrl);
 
       console.log('[Migration 013] Fresh start complete');
+    }
+  },
+  {
+    id: '014',
+    name: 'Add Agent Zero columns',
+    up(db: Database.Database) {
+      // Add agent_type column (defaults to 'openclaw' for existing agents)
+      db.exec(`ALTER TABLE agents ADD COLUMN agent_type TEXT NOT NULL DEFAULT 'openclaw'`);
+      // Agent Zero endpoint URL
+      db.exec(`ALTER TABLE agents ADD COLUMN endpoint_url TEXT`);
+      // Encrypted API key for Agent Zero authentication
+      db.exec(`ALTER TABLE agents ADD COLUMN api_key_encrypted TEXT`);
+      console.log('[Migration 014] Added agent_type, endpoint_url, api_key_encrypted columns to agents');
     }
   }
 ];

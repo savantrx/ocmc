@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Users, Save, AlertCircle, CheckCircle2, RefreshCw } from 'lucide-react';
-import { useMissionControl } from '@/lib/store';
+import { useAIOS } from '@/lib/store';
 import type { WorkflowTemplate, WorkflowStage } from '@/lib/types';
 
 interface TeamTabProps {
@@ -18,7 +18,7 @@ interface RoleAssignment {
 }
 
 export function TeamTab({ taskId, workspaceId }: TeamTabProps) {
-  const { agents } = useMissionControl();
+  const { agents } = useAIOS();
   const [roles, setRoles] = useState<RoleAssignment[]>([]);
   const [workflows, setWorkflows] = useState<WorkflowTemplate[]>([]);
   const [selectedWorkflow, setSelectedWorkflow] = useState<string>('');

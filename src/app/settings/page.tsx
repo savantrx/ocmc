@@ -1,6 +1,6 @@
 /**
  * Settings Page
- * Configure Mission Control paths, URLs, and preferences
+ * Configure AIOS paths, URLs, and preferences
  */
 
 'use client';
@@ -8,11 +8,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Settings, Save, RotateCcw, Home, FolderOpen, Link as LinkIcon } from 'lucide-react';
-import { getConfig, updateConfig, resetConfig, type MissionControlConfig } from '@/lib/config';
+import { getConfig, updateConfig, resetConfig, type AIOSConfig } from '@/lib/config';
 
 export default function SettingsPage() {
   const router = useRouter();
-  const [config, setConfig] = useState<MissionControlConfig | null>(null);
+  const [config, setConfig] = useState<AIOSConfig | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +48,7 @@ export default function SettingsPage() {
     }
   };
 
-  const handleChange = (field: keyof MissionControlConfig, value: string) => {
+  const handleChange = (field: keyof AIOSConfig, value: string) => {
     if (!config) return;
     setConfig({ ...config, [field]: value });
   };
@@ -70,7 +70,7 @@ export default function SettingsPage() {
             <button
               onClick={() => router.push('/')}
               className="p-2 hover:bg-mc-bg-tertiary rounded text-mc-text-secondary"
-              title="Back to Mission Control"
+              title="Back to AutomateAI Suite"
             >
               ← Back
             </button>
@@ -121,7 +121,7 @@ export default function SettingsPage() {
             <h2 className="text-xl font-semibold text-mc-text">Workspace Paths</h2>
           </div>
           <p className="text-sm text-mc-text-secondary mb-4">
-            Configure where Mission Control stores projects and deliverables.
+            Configure where AIOS stores projects and deliverables.
           </p>
 
           <div className="space-y-4">
@@ -137,7 +137,7 @@ export default function SettingsPage() {
                 className="w-full px-4 py-2 bg-mc-bg border border-mc-border rounded text-mc-text focus:border-mc-accent focus:outline-none"
               />
               <p className="text-xs text-mc-text-secondary mt-1">
-                Base directory for all Mission Control files. Use ~ for home directory.
+                Base directory for all AIOS files. Use ~ for home directory.
               </p>
             </div>
 
@@ -165,7 +165,7 @@ export default function SettingsPage() {
                 type="text"
                 value={config.defaultProjectName}
                 onChange={(e) => handleChange('defaultProjectName', e.target.value)}
-                placeholder="mission-control"
+                placeholder="aios"
                 className="w-full px-4 py-2 bg-mc-bg border border-mc-border rounded text-mc-text focus:border-mc-accent focus:outline-none"
               />
               <p className="text-xs text-mc-text-secondary mt-1">
@@ -182,23 +182,23 @@ export default function SettingsPage() {
             <h2 className="text-xl font-semibold text-mc-text">API Configuration</h2>
           </div>
           <p className="text-sm text-mc-text-secondary mb-4">
-            Configure Mission Control API URL for agent orchestration.
+            Configure AIOS API URL for agent orchestration.
           </p>
 
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-mc-text mb-2">
-                Mission Control URL
+                AIOS URL
               </label>
               <input
                 type="text"
-                value={config.missionControlUrl}
-                onChange={(e) => handleChange('missionControlUrl', e.target.value)}
+                value={config.aiosUrl}
+                onChange={(e) => handleChange('aiosUrl', e.target.value)}
                 placeholder="http://localhost:4000"
                 className="w-full px-4 py-2 bg-mc-bg border border-mc-border rounded text-mc-text focus:border-mc-accent focus:outline-none"
               />
               <p className="text-xs text-mc-text-secondary mt-1">
-                URL where Mission Control is running. Auto-detected by default. Change for remote access.
+                URL where AIOS is running. Auto-detected by default. Change for remote access.
               </p>
             </div>
           </div>
@@ -213,7 +213,7 @@ export default function SettingsPage() {
             Some settings are also configurable via environment variables in <code className="px-2 py-1 bg-mc-bg rounded">.env.local</code>:
           </p>
           <ul className="text-sm text-blue-300 space-y-1 ml-4 list-disc">
-            <li><code>MISSION_CONTROL_URL</code> - API URL override</li>
+            <li><code>AIOS_URL</code> - API URL override</li>
             <li><code>WORKSPACE_BASE_PATH</code> - Base workspace directory</li>
             <li><code>PROJECTS_PATH</code> - Projects directory</li>
             <li><code>OPENCLAW_GATEWAY_URL</code> - Gateway WebSocket URL</li>

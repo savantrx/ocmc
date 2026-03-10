@@ -8,16 +8,16 @@
 
 import Database from 'better-sqlite3';
 import { getDb } from '@/lib/db';
-import { getMissionControlUrl } from '@/lib/config';
+import { getAIOSUrl } from '@/lib/config';
 
 // ── Agent Definitions ──────────────────────────────────────────────
 
-function sharedUserMd(missionControlUrl: string): string {
+function sharedUserMd(aiosUrl: string): string {
   return `# User Context
 
 ## Operating Environment
-- Platform: Autensa multi-agent task orchestration
-- API Base: ${missionControlUrl}
+- Platform: AutomateAI multi-agent task orchestration
+- API Base: ${aiosUrl}
 - Tasks are dispatched automatically by the workflow engine
 - Communication via OpenClaw Gateway
 
@@ -32,10 +32,10 @@ Manages overall system, sets priorities, defines tasks. Follow specifications pr
 
 const SHARED_AGENTS_MD = `# Team Roster
 
-## Builder Agent (🛠️)
+## Ben / CTO (🛠️)
 Creates deliverables from specs. Writes code, creates files, builds projects. When work comes back from failed QA, fixes all reported issues.
 
-## Tester Agent (🧪) — Front-End QA
+## Tom / VP of Testing (🧪) — Front-End QA
 Tests the app from the user's perspective. Clicks elements, checks rendering, verifies images/links, tests forms. This is FRONT-END testing — does the app work when you use it?
 
 ## Reviewer Agent (🔍) — Code QC
@@ -45,9 +45,9 @@ Final quality gate. Reviews code quality, best practices, correctness, completen
 Observes all transitions. Captures patterns and lessons learned. Feeds knowledge back to improve future work.
 
 ## How We Work Together
-Builder → Tester (front-end QA) → Review Queue → Reviewer (code QC) → Done
-If Testing fails: back to Builder with front-end issues.
-If Verification fails: back to Builder with code issues.
+Ben (CTO) → Tom (VP Testing, front-end QA) → Review Queue → Reviewer (code QC) → Done
+If Testing fails: back to Ben with front-end issues.
+If Verification fails: back to Ben with code issues.
 Learner watches all transitions and records lessons.
 Review is a queue — tasks wait there until the Reviewer is free.
 Only one task in Verification at a time.`;
@@ -61,10 +61,10 @@ interface AgentDef {
 
 const CORE_AGENTS: AgentDef[] = [
   {
-    name: 'Builder Agent',
+    name: 'Ben (The CTO)',
     role: 'builder',
     emoji: '🛠️',
-    soulMd: `# Builder Agent
+    soulMd: `# Ben — Chief Technology Officer
 
 Expert builder. Follows specs exactly. Creates output in the designated project directory.
 
@@ -85,10 +85,10 @@ When tasks come back from failed QA (testing or verification), read the failure 
 - Test your work before marking complete`,
   },
   {
-    name: 'Tester Agent',
+    name: 'Tom (VP of Testing)',
     role: 'tester',
     emoji: '🧪',
-    soulMd: `# Tester Agent — Front-End QA
+    soulMd: `# Tom — VP of Testing / Front-End QA
 
 Front-end QA specialist. Tests the app/project from the user's perspective.
 
@@ -179,8 +179,8 @@ Body: {
  */
 export function bootstrapCoreAgents(workspaceId: string): void {
   const db = getDb();
-  const missionControlUrl = getMissionControlUrl();
-  bootstrapCoreAgentsRaw(db, workspaceId, missionControlUrl);
+  const aiosUrl = getAIOSUrl();
+  bootstrapCoreAgentsRaw(db, workspaceId, aiosUrl);
 }
 
 /**
@@ -190,7 +190,7 @@ export function bootstrapCoreAgents(workspaceId: string): void {
 export function bootstrapCoreAgentsRaw(
   db: Database.Database,
   workspaceId: string,
-  missionControlUrl: string,
+  aiosUrl: string,
 ): void {
   // Only bootstrap if workspace has zero agents
   const count = db.prepare(
@@ -202,7 +202,7 @@ export function bootstrapCoreAgentsRaw(
     return;
   }
 
-  const userMd = sharedUserMd(missionControlUrl);
+  const userMd = sharedUserMd(aiosUrl);
   const now = new Date().toISOString();
 
   const insert = db.prepare(`

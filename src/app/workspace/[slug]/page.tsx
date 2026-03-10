@@ -9,7 +9,7 @@ import { AgentsSidebar } from '@/components/AgentsSidebar';
 import { MissionQueue } from '@/components/MissionQueue';
 import { LiveFeed } from '@/components/LiveFeed';
 import { SSEDebugPanel } from '@/components/SSEDebugPanel';
-import { useMissionControl } from '@/lib/store';
+import { useAIOS } from '@/lib/store';
 import { useSSE } from '@/hooks/useSSE';
 import { debug } from '@/lib/debug';
 import type { Task, Workspace } from '@/lib/types';
@@ -20,7 +20,7 @@ export default function WorkspacePage() {
   const params = useParams();
   const slug = params.slug as string;
 
-  const { setAgents, setTasks, setEvents, setIsOnline, setIsLoading, isLoading } = useMissionControl();
+  const { setAgents, setTasks, setEvents, setIsOnline, setIsLoading, isLoading } = useAIOS();
 
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [notFound, setNotFound] = useState(false);
@@ -137,7 +137,7 @@ export default function WorkspacePage() {
         const res = await fetch(`/api/tasks?workspace_id=${workspaceId}`);
         if (res.ok) {
           const newTasks: Task[] = await res.json();
-          const currentTasks = useMissionControl.getState().tasks;
+          const currentTasks = useAIOS.getState().tasks;
 
           const hasChanges =
             newTasks.length !== currentTasks.length ||
@@ -327,7 +327,7 @@ function MobileSettingsPanel({ workspace, denseLandscape = false }: { workspace:
         <Link href="/settings" className="w-full min-h-11 px-4 rounded-lg border border-mc-border bg-mc-bg-secondary flex items-center justify-between text-sm">
           <span className="flex items-center gap-2">
             <SettingsIcon className="w-4 h-4" />
-            Open Mission Control Settings
+            Open AIOS Settings
           </span>
           <ExternalLink className="w-4 h-4 text-mc-text-secondary" />
         </Link>

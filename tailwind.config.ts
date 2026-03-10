@@ -9,14 +9,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Dark theme colors matching the screenshot
-        'mc-bg': '#0d1117',
-        'mc-bg-secondary': '#161b22',
-        'mc-bg-tertiary': '#21262d',
-        'mc-border': '#30363d',
-        'mc-text': '#c9d1d9',
-        'mc-text-secondary': '#8b949e',
-        'mc-accent': '#58a6ff',
+        // AIOS Dark theme — warm charcoal palette
+        'mc-bg': '#373737',
+        'mc-bg-secondary': '#424242',
+        'mc-bg-tertiary': '#4d4d4d',
+        'mc-border': '#5a5a5a',
+        'mc-text': '#e8e8e8',
+        'mc-text-secondary': '#999999',
+        'mc-accent': '#0033FF',
         'mc-accent-green': '#3fb950',
         'mc-accent-yellow': '#d29922',
         'mc-accent-red': '#f85149',
@@ -25,7 +25,9 @@ const config: Config = {
         'mc-accent-cyan': '#39d353',
       },
       fontFamily: {
-        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+        sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+        display: ['var(--font-instrument-serif)', 'Instrument Serif', 'Georgia', 'serif'],
+        mono: ['SF Mono', 'Fira Code', 'ui-monospace', 'monospace'],
       },
     },
   },

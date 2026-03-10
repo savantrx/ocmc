@@ -88,13 +88,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     // Store the link in our database - session ID will be set when first message is sent
     // For now, use agent name as the session identifier
     const sessionId = uuidv4();
-    const openclawSessionId = `mission-control-${agent.name.toLowerCase().replace(/\s+/g, '-')}`;
+    const openclawSessionId = `aios-${agent.name.toLowerCase().replace(/\s+/g, '-')}`;
     const now = new Date().toISOString();
 
     run(
       `INSERT INTO openclaw_sessions (id, agent_id, openclaw_session_id, channel, status, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [sessionId, id, openclawSessionId, 'mission-control', 'active', now, now]
+      [sessionId, id, openclawSessionId, 'aios', 'active', now, now]
     );
 
     // Log event

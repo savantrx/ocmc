@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { X, Search, Download, Check, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
-import { useMissionControl } from '@/lib/store';
+import { useAIOS } from '@/lib/store';
 import type { DiscoveredAgent } from '@/lib/types';
 
 interface DiscoverAgentsModalProps {
@@ -11,7 +11,7 @@ interface DiscoverAgentsModalProps {
 }
 
 export function DiscoverAgentsModal({ onClose, workspaceId }: DiscoverAgentsModalProps) {
-  const { addAgent } = useMissionControl();
+  const { addAgent } = useAIOS();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [agents, setAgents] = useState<DiscoveredAgent[]>([]);

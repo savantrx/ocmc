@@ -3,9 +3,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { queryOne, queryAll, run } from '@/lib/db';
 import { getOpenClawClient } from '@/lib/openclaw/client';
 import { broadcast } from '@/lib/events';
-import { getProjectsPath, getMissionControlUrl } from '@/lib/config';
+import { getProjectsPath, getAIOSUrl } from '@/lib/config';
 import { getRelevantKnowledge, formatKnowledgeForDispatch } from '@/lib/learner';
 import { getTaskWorkflow } from '@/lib/workflow-engine';
+import { dispatchToAgentZero } from '@/lib/agent-zero/client';
+import { decryptApiKey } from '@/lib/crypto';
 import type { Task, Agent, OpenClawSession, WorkflowStage } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -80,7 +82,86 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       }
     }
 
-    // Connect to OpenClaw Gateway
+    // ── Agent Zero dispatch path ──────────────────────────────────────
+    if (agent.agent_type === 'agent_zero') {
+      if (!agent.endpoint_url) {
+        return NextResponse.json(
+          { error: 'Agent Zero node has no endpoint URL configured' },
+          { status: 400 },
+        );
+      }
+      if (!agent.api_key_encrypted) {
+        return NextResponse.json(
+          { error: 'Agent Zero node has no API key configured' },
+          { status: 400 },
+        );
+      }
+
+      let apiKey: string;
+      try {
+        apiKey = decryptApiKey(agent.api_key_encrypted);
+      } catch {
+        return NextResponse.json(
+          { error: 'Failed to decrypt Agent Zero API key' },
+          { status: 500 },
+        );
+      }
+
+      const now = new Date().toISOString();
+
+      // Build a compact task message for Agent Zero
+      const projectsPath = getProjectsPath();
+      const projectDir = task.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      const taskProjectDir = `${projectsPath}/${projectDir}`;
+      const a0Message = `Task: ${task.title}\n${task.description || ''}\nPriority: ${task.priority}\nOutput directory: ${taskProjectDir}\nCallback: POST ${getAIOSUrl()}/api/tasks/${task.id}/activities`;
+
+      const taskId = `aios-${task.id.slice(0, 8)}`;
+
+      try {
+        const result = await dispatchToAgentZero(
+          agent.endpoint_url,
+          apiKey,
+          taskId,
+          agent.id,
+          a0Message,
+          false,
+        );
+
+        // Update task status
+        if (task.status === 'assigned') {
+          run('UPDATE tasks SET status = ?, updated_at = ? WHERE id = ?', ['in_progress', now, id]);
+        }
+
+        // Update agent status
+        run('UPDATE agents SET status = ?, updated_at = ? WHERE id = ?', ['working', now, agent.id]);
+
+        // Log dispatch activity
+        run(
+          `INSERT INTO task_activities (id, task_id, agent_id, activity_type, message, created_at)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [crypto.randomUUID(), task.id, agent.id, 'status_changed', `Task dispatched to Agent Zero node ${agent.name}`, now],
+        );
+
+        // Broadcast update
+        const updatedTask = queryOne<Task>('SELECT * FROM tasks WHERE id = ?', [id]);
+        if (updatedTask) {
+          broadcast({ type: 'task_updated', payload: updatedTask });
+        }
+
+        return NextResponse.json({
+          success: result.success,
+          task_id: task.id,
+          agent_id: agent.id,
+          finalText: result.finalText,
+          message: result.success ? 'Task dispatched to Agent Zero node' : result.error,
+        });
+      } catch (err) {
+        console.error('Agent Zero dispatch failed:', err);
+        return NextResponse.json({ error: 'Agent Zero dispatch failed' }, { status: 502 });
+      }
+    }
+
+    // ── OpenClaw dispatch path (default) ─────────────────────────────
     const client = getOpenClawClient();
     if (!client.isConnected()) {
       try {
@@ -105,12 +186,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     if (!session) {
       // Create session record
       const sessionId = uuidv4();
-      const openclawSessionId = `mission-control-${agent.name.toLowerCase().replace(/\s+/g, '-')}`;
-      
+      const openclawSessionId = `aios-${agent.name.toLowerCase().replace(/\s+/g, '-')}`;
+
       run(
         `INSERT INTO openclaw_sessions (id, agent_id, openclaw_session_id, channel, status, created_at, updated_at)
          VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [sessionId, agent.id, openclawSessionId, 'mission-control', 'active', now, now]
+        [sessionId, agent.id, openclawSessionId, 'aios', 'active', now, now]
       );
 
       session = queryOne<OpenClawSession>(
@@ -145,7 +226,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const projectsPath = getProjectsPath();
     const projectDir = task.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     const taskProjectDir = `${projectsPath}/${projectDir}`;
-    const missionControlUrl = getMissionControlUrl();
+    const aiosUrl = getAIOSUrl();
 
     // Parse planning_spec and planning_agents if present (stored as JSON text on the task row)
     const rawTask = task as Task & { assigned_agent_name?: string; workspace_id: string; planning_spec?: string; planning_agents?: string };
@@ -222,16 +303,16 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const isTester = currentStage?.role === 'tester';
     const isVerifier = currentStage?.role === 'verifier' || currentStage?.role === 'reviewer';
     const nextStatus = nextStage?.status || 'review';
-    const failEndpoint = `POST ${missionControlUrl}/api/tasks/${task.id}/fail`;
+    const failEndpoint = `POST ${aiosUrl}/api/tasks/${task.id}/fail`;
 
     let completionInstructions: string;
     if (isBuilder) {
       completionInstructions = `**IMPORTANT:** After completing work, you MUST call these APIs:
-1. Log activity: POST ${missionControlUrl}/api/tasks/${task.id}/activities
+1. Log activity: POST ${aiosUrl}/api/tasks/${task.id}/activities
    Body: {"activity_type": "completed", "message": "Description of what was done"}
-2. Register deliverable: POST ${missionControlUrl}/api/tasks/${task.id}/deliverables
+2. Register deliverable: POST ${aiosUrl}/api/tasks/${task.id}/deliverables
    Body: {"deliverable_type": "file", "title": "File name", "path": "${taskProjectDir}/filename.html"}
-3. Update status: PATCH ${missionControlUrl}/api/tasks/${task.id}
+3. Update status: PATCH ${aiosUrl}/api/tasks/${task.id}
    Body: {"status": "${nextStatus}"}
 
 When complete, reply with:
@@ -242,9 +323,9 @@ When complete, reply with:
 Review the output directory for deliverables and run any applicable tests.
 
 **If tests PASS:**
-1. Log activity: POST ${missionControlUrl}/api/tasks/${task.id}/activities
+1. Log activity: POST ${aiosUrl}/api/tasks/${task.id}/activities
    Body: {"activity_type": "completed", "message": "Tests passed: [summary]"}
-2. Update status: PATCH ${missionControlUrl}/api/tasks/${task.id}
+2. Update status: PATCH ${aiosUrl}/api/tasks/${task.id}
    Body: {"status": "${nextStatus}"}
 
 **If tests FAIL:**
@@ -258,9 +339,9 @@ Reply with: \`TEST_PASS: [summary]\` or \`TEST_FAIL: [what failed]\``;
 Review deliverables, test results, and task requirements.
 
 **If verification PASSES:**
-1. Log activity: POST ${missionControlUrl}/api/tasks/${task.id}/activities
+1. Log activity: POST ${aiosUrl}/api/tasks/${task.id}/activities
    Body: {"activity_type": "completed", "message": "Verification passed: [summary]"}
-2. Update status: PATCH ${missionControlUrl}/api/tasks/${task.id}
+2. Update status: PATCH ${aiosUrl}/api/tasks/${task.id}
    Body: {"status": "${nextStatus}"}
 
 **If verification FAILS:**
@@ -271,7 +352,7 @@ Reply with: \`VERIFY_PASS: [summary]\` or \`VERIFY_FAIL: [what failed]\``;
     } else {
       // Fallback for unknown roles
       completionInstructions = `**IMPORTANT:** After completing work:
-1. Update status: PATCH ${missionControlUrl}/api/tasks/${task.id}
+1. Update status: PATCH ${aiosUrl}/api/tasks/${task.id}
    Body: {"status": "${nextStatus}"}`;
     }
 

@@ -33,7 +33,7 @@ function verifyWebhookSignature(signature: string, rawBody: string): boolean {
  * Receives completion notifications from agents.
  * Expected payload:
  * {
- *   "session_id": "mission-control-engineering",
+ *   "session_id": "aios-engineering",
  *   "message": "TASK_COMPLETE: Built the authentication system"
  * }
  * 

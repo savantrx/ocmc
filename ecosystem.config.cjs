@@ -1,6 +1,6 @@
 module.exports = {
   apps: [{
-    name: 'mission-control',
+    name: 'aios',
     script: '/opt/homebrew/bin/npx',
     args: 'next start -p 4000',
     cwd: '/Users/charlie/projects/mc-security-fix',
